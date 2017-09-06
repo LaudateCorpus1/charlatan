@@ -60,6 +60,10 @@
         (is (= (select-keys match [:method :path]) {:method "GET" :path "/ping"}))))))
 
 (deftest with-running-mb-test
-  (testing "correct URL is used"
+  (testing "correct referenced URL is used"
+    (let [mb-url "http://mountebank"]
+      (mb/with-running-mb {:url mb-url :port 4444}
+        (is (= "http://mountebank:4444" (mb/mburl+))))))
+  (testing "correct literal URL is used"
     (mb/with-running-mb {:url "http://mountebank" :port 4444}
       (is (= "http://mountebank:4444" (mb/mburl+))))))

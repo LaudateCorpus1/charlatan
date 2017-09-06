@@ -90,7 +90,7 @@
 (defmacro with-running-mb
   "Evaluates body in the context of an already running mountebank instance."
   [{:keys [url port] :or {url "http://localhost"}} & body]
-  `(binding [*mb* {:options {:url ~(str url ":") :port ~port}}]
+  `(binding [*mb* {:options {:url (str ~url ":") :port ~port}}]
      ~@body))
 
 (defn- mb-url
