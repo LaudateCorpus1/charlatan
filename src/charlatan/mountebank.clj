@@ -3,7 +3,8 @@
             [clj-http.client :as http]
             [clojure.string :refer [blank?]]
             [me.raynes.conch :refer [programs]]
-            [me.raynes.conch.low-level :refer [proc stream-to-out exit-code destroy] :as sh]))
+            [me.raynes.conch.low-level :refer [proc stream-to-out exit-code destroy] :as sh]
+            [clojure.string :as str]))
 
 (programs which)
 (programs mb)
@@ -86,15 +87,28 @@
      (try ~@body
           (finally (stop *mb*)))))
 
-(defn mburl+
-  "Build url for a mountebank request."
-  [mb-port & suffix]
-  (apply str "http://localhost:" mb-port suffix))
+(defmacro with-running-mb
+  "Evaluates body in the context of an already running mountebank instance."
+  [{:keys [url port] :or {url "http://localhost"}} & body]
+  `(binding [*mb* {:options {:url ~(str url ":") :port ~port}}]
+     ~@body))
+
+(defn- mb-url
+  "Obtain the url of the dynamically bound *mb*."
+  []
+  (get-in *mb* [:options :url] "http://localhost:"))
 
 (defn- mb-port
   "Obtain the port of the dynamically bound *mb*"
   []
   (-> *mb* :options :port))
+
+(defn mburl+
+  "Build url for a mountebank request. Pass nil to `port` to get port from the
+  environment."
+  ([] (mburl+ nil))
+  ([port & suffix]
+   (apply str (mb-url) (or port (mb-port)) suffix)))
 
 (defn get-config
   ([]

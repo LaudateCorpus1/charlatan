@@ -58,3 +58,8 @@
       (let [{status :status body :body} (mb/get-imposter port)
             match (-> body :stubs (first) :matches (first) :request)]
         (is (= (select-keys match [:method :path]) {:method "GET" :path "/ping"}))))))
+
+(deftest with-running-mb-test
+  (testing "correct URL is used"
+    (mb/with-running-mb {:url "http://mountebank" :port 4444}
+      (is (= "http://mountebank:4444" (mb/mburl+))))))
