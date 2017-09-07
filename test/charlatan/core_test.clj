@@ -2,6 +2,7 @@
   (:require [cheshire.core :as json]
             [clj-http.client :as http]
             [clojure.test :refer :all]
+            [org.senatehouse.expect-call :refer [expect-call]]
             [charlatan.core :refer :all]
             [charlatan.mountebank :as mb]))
 
@@ -67,3 +68,16 @@
   (testing "correct literal URL is used"
     (mb/with-running-mb {:url "http://mountebank" :port 4444}
       (is (= "http://mountebank:4444" (mb/mburl+))))))
+
+(deftest with-imposter-test
+  (testing "call delete-imposter on success"
+    (expect-call [(mb/create-imposter [80 :imposter])
+                  (mb/delete-imposter [80])]
+      (mb/with-imposter 80 :imposter)))
+  (testing "call delete-imposter on failure"
+    (expect-call [(mb/create-imposter [80 :imposter])
+                  (mb/delete-imposter [80])]
+      (try
+        (mb/with-imposter 80 :imposter
+          (throw (Exception. "test")))
+        (catch Exception _)))))

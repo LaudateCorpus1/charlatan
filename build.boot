@@ -8,6 +8,7 @@
                   [cheshire "5.5.0"]
                   [clj-http "2.0.1"]
                   [me.raynes/conch "0.8.0"]
+                  [org.senatehouse/expect-call "0.1.0"]
                   [adzerk/boot-test "1.2.0" :scope "test"]])
 
 (task-options!
