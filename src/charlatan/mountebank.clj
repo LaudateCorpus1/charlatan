@@ -93,6 +93,17 @@
   `(binding [*mb* {:options {:url (str ~url ":") :port ~port}}]
      ~@body))
 
+(defmacro with-imposter
+  "Runs body in the context of an imposter. Deletes the imposter when
+  done. Mainly useful in the context of `with-running-mb`, since in that case
+  one mountebank instance is likely shared among multiple tests."
+  [port imposter & body]
+  `(try
+     (do
+       (create-imposter ~port ~imposter)
+       ~@body)
+     (finally (delete-imposter ~port))))
+
 (defn- mb-url
   "Obtain the url of the dynamically bound *mb*."
   []
